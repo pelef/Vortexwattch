@@ -35,6 +35,50 @@
 `define VX_DCR_MPM_CLASS_NONE           0
 `define VX_DCR_MPM_CLASS_CORE           1
 `define VX_DCR_MPM_CLASS_MEM            2
+`define VX_DCR_MPM_CLASS_POWER          3
+`define VX_DCR_MPM_CLASS_POWER_WARPS    4
+`define VX_DCR_MPM_CLASS_POWER_LANES    5
+`define VX_DCR_MPM_CLASS_POWER_ISSUE    6
+`define VX_DCR_MPM_CLASS_POWER_MEM      7
+
+`define VX_POWER_ABI                   32'h56585001
+`define VX_CSR_POWER_ABI               12'hB03
+`define VX_CSR_POWER_SNAPSHOT          12'hB04
+`define VX_POWER_SNAPSHOT_WORDS        28
+`define VX_POWER_NUM_OPS               23
+`define VX_POWER_NUM_ACTIVITY          9
+`define VX_POWER_OP_INT_ALU                0
+`define VX_POWER_OP_INT_MUL                1
+`define VX_POWER_OP_INT_DIV                2
+`define VX_POWER_OP_BRANCH                 3
+`define VX_POWER_OP_FP32_ADD               4
+`define VX_POWER_OP_FP32_MUL               5
+`define VX_POWER_OP_FP32_FMA               6
+`define VX_POWER_OP_FP32_DIV               7
+`define VX_POWER_OP_FP32_SQRT              8
+`define VX_POWER_OP_FP32_MISC              9
+`define VX_POWER_OP_FP64_ADD               10
+`define VX_POWER_OP_FP64_MUL               11
+`define VX_POWER_OP_FP64_FMA               12
+`define VX_POWER_OP_FP64_DIV               13
+`define VX_POWER_OP_FP64_SQRT              14
+`define VX_POWER_OP_FP64_MISC              15
+`define VX_POWER_OP_LOAD                   16
+`define VX_POWER_OP_STORE                  17
+`define VX_POWER_OP_FENCE                  18
+`define VX_POWER_OP_CSR                    19
+`define VX_POWER_OP_WARP_CONTROL           20
+`define VX_POWER_OP_TENSOR                 21
+`define VX_POWER_OP_OTHER                  22
+`define VX_POWER_BUSY_CYCLES               0
+`define VX_POWER_WARP_CYCLES               1
+`define VX_POWER_RESIDENT_THREAD_CYCLES    2
+`define VX_POWER_ISSUE_CYCLES              3
+`define VX_POWER_DECODED_WARPS             4
+`define VX_POWER_LOGICAL_READ_WORDS        5
+`define VX_POWER_WRITEBACK_WORDS           6
+`define VX_POWER_ISSUED_WARPS              7
+`define VX_POWER_ISSUED_LANES              8
 
 // User Floating-Point CSRs ///////////////////////////////////////////////////
 

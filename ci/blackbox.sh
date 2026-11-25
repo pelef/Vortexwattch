@@ -28,7 +28,7 @@ show_help()
     echo "  where"
     echo "--driver: gpu, simx, rtlsim, oape, xrt"
     echo "--app: any subfolder test under regression or opencl"
-    echo "--class: 0=disable, 1=pipeline, 2=memsys"
+    echo "--perf: 0=disable, 1=pipeline, 2=memsys, 3=power activity, 4=power warps, 5=power lanes, 6=power issue cycles, 7=power memory"
     echo "--nohup: build and run in temp directory"
 }
 
@@ -66,7 +66,10 @@ parse_args() {
             --threads=*) CONFIGS=$(add_option "$CONFIGS" "-DNUM_THREADS=${i#*=}") ;;
             --l2cache)  CONFIGS=$(add_option "$CONFIGS" "-DL2_ENABLE") ;;
             --l3cache)  CONFIGS=$(add_option "$CONFIGS" "-DL3_ENABLE") ;;
-            --perf=*)   CONFIGS=$(add_option "$CONFIGS" "-DPERF_ENABLE"); PERF_CLASS=${i#*=} ;;
+            --perf=*)   CONFIGS=$(add_option "$CONFIGS" "-DPERF_ENABLE"); PERF_CLASS=${i#*=}
+                        case "$PERF_CLASS" in
+                            3|4|5|6|7) CONFIGS=$(add_option "$CONFIGS" "-DPOWER_ENABLE") ;;
+                        esac ;;
             --debug=*)  DEBUG=1; DEBUG_LEVEL=${i#*=} ;;
             --scope)    SCOPE=1; ;;
             --args=*)   HAS_ARGS=1; ARGS=${i#*=} ;;

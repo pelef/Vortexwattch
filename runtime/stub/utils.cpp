@@ -166,6 +166,10 @@ extern int vx_upload_file(vx_device_h hdevice, const char* filename, vx_buffer_h
 ///////////////////////////////////////////////////////////////////////////////
 
 extern int vx_dump_perf(vx_device_h hdevice, FILE* stream) {
+  auto power_class = get_profiling_mode();
+  if (power_class >= VX_DCR_MPM_CLASS_POWER && power_class <= VX_DCR_MPM_CLASS_POWER_MEM)
+    return vx_dump_power(hdevice, stream);
+
   uint64_t total_instrs = 0;
   uint64_t total_cycles = 0;
   uint64_t max_cycles = 0;

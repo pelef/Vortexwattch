@@ -6,6 +6,7 @@ all:
 	$(MAKE) -C issue_top
 	$(MAKE) -C local_mem_top
 	$(MAKE) -C mem_unit_top
+	$(MAKE) -C power_counters
 
 run:
 	$(MAKE) -C generic_queue run
@@ -15,6 +16,7 @@ run:
 	$(MAKE) -C issue_top run
 	$(MAKE) -C local_mem_top run
 	$(MAKE) -C mem_unit_top run
+	$(MAKE) -C power_counters run
 
 clean:
 	$(MAKE) -C generic_queue clean
@@ -24,3 +26,4 @@ clean:
 	$(MAKE) -C issue_top clean
 	$(MAKE) -C local_mem_top clean
 	$(MAKE) -C mem_unit_top clean
+	$(MAKE) -C power_counters clean

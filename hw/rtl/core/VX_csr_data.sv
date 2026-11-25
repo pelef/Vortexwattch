@@ -73,6 +73,22 @@ import VX_fpu_pkg::*;
     `UNUSED_VAR (write_wid)
     `UNUSED_VAR (write_data)
 
+`ifdef POWER_ENABLE
+    wire [`VX_POWER_SNAPSHOT_WORDS-1:0][PERF_CTR_BITS-1:0] power_snapshot;
+    wire power_bank = base_dcrs.mpm_class >= `VX_DCR_MPM_CLASS_POWER
+                   && base_dcrs.mpm_class <= `VX_DCR_MPM_CLASS_POWER_MEM;
+    VX_power_snapshot #(.CORE_ID(CORE_ID)) power_capture (
+        .clk           (clk),
+        .reset         (reset),
+        .capture       (read_enable && power_bank && read_addr == `VX_CSR_POWER_ABI),
+        .bank          (base_dcrs.mpm_class),
+        .cycles        (cycles),
+        .pipeline_perf (pipeline_perf),
+        .sysmem_perf   (sysmem_perf),
+        .values        (power_snapshot)
+    );
+`endif
+
     // CSRs Write /////////////////////////////////////////////////////////////
 
     reg [`XLEN-1:0] mscratch;
@@ -209,6 +225,26 @@ import VX_fpu_pkg::*;
                     read_addr_valid_w = 1;
                 `ifdef PERF_ENABLE
                     case (base_dcrs.mpm_class)
+                `ifdef POWER_ENABLE
+                    `VX_DCR_MPM_CLASS_POWER,
+                    `VX_DCR_MPM_CLASS_POWER_WARPS,
+                    `VX_DCR_MPM_CLASS_POWER_LANES,
+                    `VX_DCR_MPM_CLASS_POWER_ISSUE,
+                    `VX_DCR_MPM_CLASS_POWER_MEM: begin
+                        if (read_addr == `VX_CSR_POWER_ABI)
+                            read_data_ro_w = `XLEN'(`VX_POWER_ABI);
+                        else if (read_addr[6:0] >= 7'h04 && read_addr[6:0] <= 7'h1f) begin
+                        `ifdef XLEN_64
+                            read_data_ro_w = `XLEN'(power_snapshot[read_addr[4:0] - 5'd4]);
+                        `else
+                            if (read_addr[7])
+                                read_data_ro_w = 32'(power_snapshot[read_addr[4:0] - 5'd4] >> 32);
+                            else
+                                read_data_ro_w = 32'(power_snapshot[read_addr[4:0] - 5'd4]);
+                        `endif
+                        end
+                    end
+                `endif
                     `VX_DCR_MPM_CLASS_CORE: begin
                         case (read_addr)
                         // PERF: pipeline

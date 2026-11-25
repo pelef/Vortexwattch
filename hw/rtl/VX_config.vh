@@ -14,6 +14,12 @@
 `ifndef VX_CONFIG_VH
 `define VX_CONFIG_VH
 
+`ifdef POWER_ENABLE
+`ifndef PERF_ENABLE
+`define PERF_ENABLE
+`endif
+`endif
+
 `ifndef MIN
 `define MIN(x, y)   (((x) < (y)) ? (x) : (y))
 `endif

@@ -45,6 +45,9 @@ Vortex news can be found on its [website](https://vortex.cc.gatech.edu/)
 
 ## Directory structure
 
+Optional [power-modeling counters and FPGA telemetry](docs/power_modeling.md)
+provide scoped RTL activity measurements and read-only XRT power sampling.
+
 - `doc`: [Documentation](docs/index.md).
 - `hw`: Hardware sources.
 - `driver`: Host drivers repository.

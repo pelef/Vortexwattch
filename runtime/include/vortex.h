@@ -140,6 +140,10 @@ int vx_check_occupancy(vx_device_h hdevice, uint32_t group_size, uint32_t* max_l
 
 // performance counters
 int vx_dump_perf(vx_device_h hdevice, FILE* stream);
+/// Export the selected power-counter bank as scoped POWER JSON lines.
+/// Requires a completed RTL run with POWER_ENABLE and MPM class 3..7.
+/// Returns an error for a missing/unsupported hardware ABI or output failure.
+int vx_dump_power(vx_device_h hdevice, FILE* stream);
 
 #ifdef __cplusplus
 }

@@ -97,10 +97,10 @@ extern int vx_dev_open(vx_device_h* hdevice) {
 }
 
 extern int vx_dev_close(vx_device_h hdevice) {
-  vx_dump_perf(hdevice, stdout);
+  int perf_ret = vx_dump_perf(hdevice, stdout);
   int ret = (g_callbacks.dev_close)(hdevice);
   dlclose(g_drv_handle);
-  return ret;
+  return perf_ret ? perf_ret : ret;
 }
 
 extern int vx_dev_caps(vx_device_h hdevice, uint32_t caps_id, uint64_t* value) {
@@ -145,6 +145,12 @@ extern int vx_copy_dev_to_dev(vx_buffer_h hdest_buffer, uint64_t dest_offset, vx
 
 extern int vx_start(vx_device_h hdevice, vx_buffer_h hkernel, vx_buffer_h harguments) {
   int profiling_mode = get_profiling_mode();
+  auto driver = getenv("VORTEX_DRIVER");
+  if (profiling_mode >= VX_DCR_MPM_CLASS_POWER && profiling_mode <= VX_DCR_MPM_CLASS_POWER_MEM
+      && (!driver || std::string(driver) == "simx")) {
+    fprintf(stderr, "Power counters require processor RTL (rtlsim or xrt), not SimX.\n");
+    return -1;
+  }
   if (profiling_mode != 0) {
     CHECK_ERR(vx_dcr_write(hdevice, VX_DCR_BASE_MPM_CLASS, profiling_mode), {
       return err;
@@ -154,7 +160,25 @@ extern int vx_start(vx_device_h hdevice, vx_buffer_h hkernel, vx_buffer_h hargum
 }
 
 extern int vx_ready_wait(vx_device_h hdevice, uint64_t timeout) {
-  return (g_callbacks.ready_wait)(hdevice, timeout);
+  CHECK_ERR((g_callbacks.ready_wait)(hdevice, timeout), { return err; });
+  const auto mode = get_profiling_mode();
+  if (mode >= VX_DCR_MPM_CLASS_POWER && mode <= VX_DCR_MPM_CLASS_POWER_MEM) {
+    // Fail at the normal completion check, not only at close (which many
+    // applications ignore). Old bitstreams must not look like valid profiles.
+    uint64_t cores;
+    CHECK_ERR(vx_dev_caps(hdevice, VX_CAPS_NUM_CORES, &cores), { return err; });
+    if (cores == 0)
+      return -1;
+    for (uint32_t core = 0; core < cores; ++core) {
+      uint64_t abi;
+      CHECK_ERR(vx_mpm_query(hdevice, VX_CSR_POWER_ABI, core, &abi), { return err; });
+      if (abi != VX_POWER_ABI) {
+        fprintf(stderr, "Power counter ABI missing on core %u: rebuild RTL with POWER_ENABLE.\n", core);
+        return -1;
+      }
+    }
+  }
+  return 0;
 }
 
 extern int vx_dcr_read(vx_device_h hdevice, uint32_t addr, uint32_t* value) {

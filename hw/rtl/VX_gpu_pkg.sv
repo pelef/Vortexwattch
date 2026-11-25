@@ -741,6 +741,16 @@ package VX_gpu_pkg;
     } sysmem_perf_t;
 
     typedef struct packed {
+        logic [`VX_POWER_NUM_ACTIVITY-1:0][PERF_CTR_BITS-1:0] activity;
+        logic [`VX_POWER_NUM_OPS-1:0][PERF_CTR_BITS-1:0] warp_instructions;
+        logic [`VX_POWER_NUM_OPS-1:0][PERF_CTR_BITS-1:0] lane_instructions;
+        logic [`VX_POWER_NUM_OPS-1:0][PERF_CTR_BITS-1:0] issue_cycles;
+    } power_perf_t;
+
+    typedef struct packed {
+    `ifdef POWER_ENABLE
+        power_perf_t              power;
+    `endif
         sched_perf_t              sched;
         issue_perf_t              issue;
         logic [PERF_CTR_BITS-1:0] ifetches;

@@ -70,6 +70,34 @@ module VX_core import VX_gpu_pkg::*; #(
     coalescer_perf_t coalescer_perf;
     pipeline_perf_t pipeline_perf;
     sysmem_perf_t sysmem_perf_tmp;
+`ifdef POWER_ENABLE
+    wire [NUM_EX_UNITS*`ISSUE_WIDTH-1:0] power_dispatch_fire;
+    dispatch_t power_dispatched [NUM_EX_UNITS*`ISSUE_WIDTH];
+    wire [`ISSUE_WIDTH-1:0] power_writeback_valid;
+    writeback_t power_written [`ISSUE_WIDTH];
+    for (genvar p = 0; p < NUM_EX_UNITS*`ISSUE_WIDTH; ++p) begin : g_power_dispatch
+        assign power_dispatch_fire[p] = dispatch_if[p].valid && dispatch_if[p].ready;
+        assign power_dispatched[p] = dispatch_if[p].data;
+    end
+    for (genvar p = 0; p < `ISSUE_WIDTH; ++p) begin : g_power_writeback
+        assign power_writeback_valid[p] = writeback_if[p].valid;
+        assign power_written[p] = writeback_if[p].data;
+    end
+    VX_power_counters power_counters (
+        .clk             (clk),
+        .reset           (reset),
+        .busy            (busy),
+        .active_warps    (sched_csr_if.active_warps),
+        .thread_masks    (sched_csr_if.thread_masks),
+        .decode_fire     (decode_if.valid && decode_if.ready),
+        .decoded         (decode_if.data),
+        .dispatch_fire   (power_dispatch_fire),
+        .dispatched      (power_dispatched),
+        .writeback_valid (power_writeback_valid),
+        .written         (power_written),
+        .perf            (pipeline_perf.power)
+    );
+`endif
     always @(*) begin
         sysmem_perf_tmp = sysmem_perf;
         sysmem_perf_tmp.lmem = lmem_perf;

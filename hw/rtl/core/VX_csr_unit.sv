@@ -95,7 +95,7 @@ module VX_csr_unit import VX_gpu_pkg::*; #(
         .fpu_csr_if     (fpu_csr_if),
     `endif
 
-        .read_enable    (csr_req_valid && csr_rd_enable),
+        .read_enable    (csr_req_valid && csr_req_ready && csr_rd_enable),
         .read_uuid      (execute_if.data.uuid),
         .read_wid       (execute_if.data.wid),
         .read_addr      (csr_addr),
